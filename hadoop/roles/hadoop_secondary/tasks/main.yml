@@ -3,8 +3,8 @@
 
 
 - name: Install the namenode and jobtracker packages
-  yum: name=${item} state=installed
-  with_items: 
+  yum: name={{ item }} state=installed
+  with_items:
    - hadoop-0.20-mapreduce-jobtrackerha
    - hadoop-hdfs-namenode
    - hadoop-hdfs-zkfc
@@ -12,7 +12,7 @@
 
 - name: Copy the hadoop configuration files
   template: src=roles/common/templates/hadoop_ha_conf/{{ item }}.j2 dest=/etc/hadoop/conf/{{ item }}
-  with_items: 
+  with_items:
    - core-site.xml
    - hadoop-metrics.properties
    - hadoop-metrics2.properties
@@ -44,7 +44,7 @@
 
 - name: start zkfc for namenodes
   service: name=hadoop-hdfs-zkfc state=started
-  delegate_to: ${item}
+  delegate_to: '{{ item }}'
   with_items: groups.hadoop_masters
 
 - name: Give permissions for mapred users
@@ -53,7 +53,7 @@
 - name: Initialize the zkfc for jobtracker
   shell: creates=/usr/lib/hadoop/zkfcjob.formatted su - mapred -c "hadoop mrzkfc -formatZK" && touch /usr/lib/hadoop/zkfcjob.formatted
 
-- name: start zkfc for jobtracker 
+- name: start zkfc for jobtracker
   service: name=hadoop-0.20-mapreduce-zkfc state=started
   delegate_to: '{{ item }}'
   with_items: groups.hadoop_masters
